@@ -8,7 +8,7 @@ pool:
 
 variables:
   azureSubscription: 'Free Trial (77db3f68-d582-4d8b-aade-dbe339640da7)'
-  appName: 'test-web-dev'
+ # appName: 'test-web-dev'
   resourceGroupName: 'rg-siva'
   buildConfiguration: 'Release'
   dotnetSdkVersion: '7.0.x'  # Adjust SDK version as needed
