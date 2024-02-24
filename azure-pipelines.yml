@@ -31,4 +31,25 @@ steps:
 - task: DotNetCoreCLI@2
   displayName: 'Build'
   inputs:
-    command: 'build
+    command: 'build'
+    projects: '**/*.csproj'
+    arguments: '--configuration $(buildConfiguration)'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Publish'
+  inputs:
+    command: 'publish'
+    publishWebProjects: true
+    arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+
+- task: AzureRmWebAppDeployment@4
+  displayName: 'Deploy to Azure App Service'
+  inputs:
+    azureSubscription: '$(azureSubscription)'
+    appType: 'webApp'
+    WebAppName: '$(appName)'
+    deployToSlotOrASE: true
+    ResourceGroupName: '$(resourceGroupName)'
+    packageForLinux: '$(Build.ArtifactStagingDirectory)/**/*.zip'
+    enableCustomDeployment: true
+    takeAppOfflineFlag: true  # Optionally take app offline during deployment
