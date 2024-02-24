@@ -4,7 +4,7 @@ trigger:
 - main  # Adjust branch as needed
 
 pool:
-  name: Azure Pipelines
+  vmImage: 'windows-latest'
 
 variables:
   azureSubscription: 'Free Trial (77db3f68-d582-4d8b-aade-dbe339640da7)'
