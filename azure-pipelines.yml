@@ -11,7 +11,7 @@ variables:
   appName: 'test-web-dev'
   resourceGroupName: 'rg-siva'
   buildConfiguration: 'Release'
-  dotnetSdkVersion: '3.1.427'  # Adjust SDK version as needed
+  dotnetSdkVersion: '3.1.x'  # Adjust SDK version as needed
 
 steps:
 - task: UseDotNet@2
