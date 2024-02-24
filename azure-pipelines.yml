@@ -26,7 +26,8 @@ steps:
     command: 'restore'
     projects: '**/*.csproj'
     feedsToUse: 'select'
-    vstsFeed: '<Your NuGet Feed>'  # If using Azure Artifacts for private packages
+    vstsFeed: 'dotnetcore-docs-hello-world
+/NuGet.Config'  # If using Azure Artifacts for private packages
 
 - task: DotNetCoreCLI@2
   displayName: 'Build'
