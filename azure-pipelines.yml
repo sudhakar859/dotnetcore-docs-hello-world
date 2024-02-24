@@ -1,42 +1,55 @@
+# YAML pipeline to build and deploy a .NET Core application to Azure App Service
+
+trigger:
+- main  # Adjust branch as needed
+
 pool:
   name: Azure Pipelines
-#Your build pipeline references the ‘BuildConfiguration’ variable, which you’ve selected to be settable at queue time. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab, and then select the option to make it settable at queue time. See https://go.microsoft.com/fwlink/?linkid=865971
-#Your build pipeline references the ‘BuildConfiguration’ variable, which you’ve selected to be settable at queue time. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab, and then select the option to make it settable at queue time. See https://go.microsoft.com/fwlink/?linkid=865971
-#Your build pipeline references the ‘BuildConfiguration’ variable, which you’ve selected to be settable at queue time. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab, and then select the option to make it settable at queue time. See https://go.microsoft.com/fwlink/?linkid=865971
+
 variables:
-  RestoreBuildProjects: 'dotnetcore-docs-hello-world
-/dotnetcoresample.csproj'
+  azureSubscription: '77db3f68-d582-4d8b-aade-dbe339640da7'
+  appName: 'test-web-dev'
+  resourceGroupName: 'rg-siva'
+  buildConfiguration: 'Release'
+  dotnetSdkVersion: '3.1.x'  # Adjust SDK version as needed
 
 steps:
-- task: DotNetCoreCLI@2
-  displayName: Restore
+- task: UseDotNet@2
+  displayName: 'Use .NET Core SDK'
   inputs:
-    command: restore
-    projects: '$(Parameters.RestoreBuildProjects)'
+    packageType: 'sdk'
+    version: '$(dotnetSdkVersion)'
 
 - task: DotNetCoreCLI@2
-  displayName: Build
+  displayName: 'Restore'
   inputs:
-    projects: '$(Parameters.RestoreBuildProjects)'
-    arguments: '--configuration $(BuildConfiguration)'
+    command: 'restore'
+    projects: '**/*.csproj'
+    feedsToUse: 'select'
+    vstsFeed: '<Your NuGet Feed>'  # If using Azure Artifacts for private packages
 
 - task: DotNetCoreCLI@2
-  displayName: Test
+  displayName: 'Build'
   inputs:
-    command: test
-    projects: '$(Parameters.TestProjects)'
-    arguments: '--configuration $(BuildConfiguration)'
+    command: 'build'
+    projects: '**/*.csproj'
+    arguments: '--configuration $(buildConfiguration)'
 
 - task: DotNetCoreCLI@2
-  displayName: Publish
+  displayName: 'Publish'
   inputs:
-    command: publish
-    publishWebProjects: True
-    arguments: '--configuration $(BuildConfiguration) --output $(build.artifactstagingdirectory)'
-    zipAfterPublish: True
+    command: 'publish'
+    publishWebProjects: true
+    arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
 
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish Artifact'
+- task: AzureRmWebAppDeployment@4
+  displayName: 'Deploy to Azure App Service'
   inputs:
-    PathtoPublish: '$(build.artifactstagingdirectory)'
-  condition: succeededOrFailed()
+    azureSubscription: '$(azureSubscription)'
+    appType: 'webApp'
+    WebAppName: '$(appName)'
+    deployToSlotOrASE: true
+    ResourceGroupName: '$(resourceGroupName)'
+    packageForLinux: '$(Build.ArtifactStagingDirectory)/**/*.zip'
+    enableCustomDeployment: true
+    takeAppOfflineFlag: true  # Optionally take app offline during deployment
